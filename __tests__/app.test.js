@@ -66,4 +66,38 @@ test("Respond with code 200 and sort all articles by date in descending order", 
     expect(articles).toBeSortedBy('created_at', {descending: true});
 })
 })
+
+describe('GET /api/articles/:id', () =>{
+    test("Respond with code 200 and an article object with correct properties", () => {
+        return request(app).get("/api/articles/1")
+        .expect(200)
+        .then((res) => {
+        const article = res.body.article;
+        expect(article).toHaveProperty("author");
+        expect(article).toHaveProperty("title");
+        expect(article).toHaveProperty("article_id");
+        expect(article).toHaveProperty("body");
+        expect(article).toHaveProperty("topic");
+        expect(article).toHaveProperty("created_at");
+        expect(article).toHaveProperty("votes");
+        expect(article).toHaveProperty("article_img_url");
+        });
+    });
+
+    test("Respond with code 404 when article id does not exist", () => {
+        return request(app).get("/api/articles/4747")
+        .expect(404)
+        .then(({body}) => {
+        expect(body.msg).toBe("Not Found");
+   })
+})
+
+test("Respond with code 400 when article id does not exist", () => {
+    return request(app).get("/api/articles/word")
+    .expect(400)
+    .then(({body}) => {
+    expect(body.msg).toBe("Bad Request");
+})
+})
+})
 })
