@@ -103,6 +103,15 @@ test("Respond with code 400 when article id does not exist", () => {
 })
 
 describe('GET /api/articles/:id/comments', () =>{
+
+    test('Responds with code 200 and an empty array when passed an article with no comments', () => {
+        return request(app).get("/api/articles/2/comments")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comments.length).toEqual(0)
+        })
+    })
+
     test("Respond with code 200 and an array of comments for the article found by article_id", () => {
         return request(app).get("/api/articles/1/comments")
         .expect(200)
@@ -116,6 +125,7 @@ describe('GET /api/articles/:id/comments', () =>{
                 expect(comment).toHaveProperty("body");
                 expect(comment).toHaveProperty("votes");
                 expect(comment).toHaveProperty("article_id");
+                expect(comment.article_id).toEqual(1);
             });
         })
     });
