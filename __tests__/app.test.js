@@ -101,3 +101,48 @@ test("Respond with code 400 when article id does not exist", () => {
 })
 })
 })
+
+describe('GET /api/articles/:id/comments', () =>{
+    test("Respond with code 200 and an array of comments for the article found by article_id", () => {
+        return request(app).get("/api/articles/1/comments")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.comments.length).toBeGreaterThan(1);
+            body.comments.forEach((comment) => {
+                expect(comment).toHaveProperty("comment_id");
+                expect(comment).toHaveProperty("votes");
+                expect(comment).toHaveProperty("created_at");
+                expect(comment).toHaveProperty("author");
+                expect(comment).toHaveProperty("body");
+                expect(comment).toHaveProperty("votes");
+                expect(comment).toHaveProperty("article_id");
+            });
+        })
+    });
+
+    test("Respond with code 404 when article id does not exist when looking for comments", () => {
+        return request(app).get("/api/articles/4747/comments")
+        .expect(404)
+        .then(({body}) => {
+        expect(body.msg).toBe("Not Found");
+   })
+})
+
+test("Respond with code 400 when article id does not exist when looking for comments", () => {
+    return request(app).get("/api/articles/word/comments")
+    .expect(400)
+    .then(({body}) => {
+    expect(body.msg).toBe("Bad Request");
+})
+})
+
+test("Respond with code 200 and sort all comments by date in descending order", () => {
+    return request(app).get("/api/articles/1/comments")
+    .expect(200)
+    .then(({body}) => {
+    const comments = body.comments
+    expect(comments.length).toBeGreaterThan(1);
+    expect(comments).toBeSortedBy('created_at', {descending: true});
+})
+})
+})
