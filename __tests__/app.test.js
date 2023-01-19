@@ -156,3 +156,63 @@ test("Respond with code 200 and sort all comments by date in descending order", 
 })
 })
 })
+
+describe("POST", () => {    
+
+    test("Respond with status code 201 and posts the new comment", () => {
+    const newComment = { username: "butter_bridge", body: "This is a test comment" };
+    return request(app).post("/api/articles/1/comments") 
+    .send(newComment)       
+    .expect(201)        
+    .then(({body}) => {
+     expect(body.comment).toEqual({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            body: 'This is a test comment',
+            author: 'butter_bridge',
+            article_id: 1,
+        })
+    })
+})
+
+test("Respond with code 404 when article id does not exist", () => {
+    return request(app).post("/api/articles/4747/comments")
+    .expect(404)
+    .then(({body}) => {
+    expect(body.msg).toBe("Not Found");
+
+})
+})
+
+test("Respond with code 400 when article id is invalid", () => {
+    const newComment = { username: "butter_bridge", body: "This is a test comment" };
+    return request(app).post("/api/articles/word/comments")
+    .send(newComment)
+    .expect(400)
+    .then(({body}) => {
+    expect(body.msg).toBe("Bad Request");
+})
+})
+
+test("Respond with code 404 when username does not exist", () => {
+    const newComment = { username: "invalid_username", body: "This is a test comment" };
+    return request(app).post("/api/articles/1/comments")
+    .send(newComment)
+    .expect(404)
+    .then(({body}) => {
+    expect(body.msg).toBe("Not Found");
+})
+})
+
+test("Respond with code 400 when body is missing", () => {
+    const newComment = { username: "butter_bridge"};
+    return request(app).post("/api/articles/1/comments")
+    .send(newComment)
+    .expect(400)
+    .then(({body}) => {
+    expect(body.msg).toBe("Bad Request");
+})
+})
+
+})
