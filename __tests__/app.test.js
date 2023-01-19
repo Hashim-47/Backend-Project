@@ -325,3 +325,19 @@ describe("PATCH", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  test("Respond with status code 200 and an array of user objects, each with the correct properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((res) => {
+        expect(res.body.users.length).toBeGreaterThan(1);
+        res.body.users.forEach((user) => {
+          expect(user).toHaveProperty("username");
+          expect(user).toHaveProperty("name");
+          expect(user).toHaveProperty("avatar_url");
+        });
+      });
+  });
+});
