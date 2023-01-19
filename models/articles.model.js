@@ -27,7 +27,36 @@ const fetchArticleComments = (article_id) => {
     
 }
 
+const insertComment = (article_id, username, body) => {
+    if(body === undefined){
+return Promise.reject({status: 400, msg: 'Bad Request'})
+}
+return fetchArticle(article_id).then(() => {
+return db.query(
+    'INSERT INTO comments (article_id, author, body) VALUES ($1, $2, $3) RETURNING *',
+    [article_id, username, body]
+).then((result) => {
+    return result.rows[0]
+})
+} ) 
+
+}
 
 
 
-module.exports = { fetchArticles, fetchArticle, fetchArticleComments}
+const fetchUserByUsername = (username) => {
+    return db.query(`SELECT * FROM users WHERE username = $1`, [username])
+    .then(({rows}) => {
+        if(rows.length === 0){
+            return Promise.reject({status: 404, msg: 'Not Found'})
+            }
+            return rows
+        })
+
+}
+
+
+
+
+
+module.exports = { fetchArticles, fetchArticle, fetchArticleComments, insertComment, fetchUserByUsername}
