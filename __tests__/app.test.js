@@ -237,7 +237,7 @@ describe("POST", () => {
 });
 
 describe("PATCH", () => {
-  test("Respond with code 200 and increment votes by 47 - return object", () => {
+  test("Respond with code 200 and increment votes by value received - return object", () => {
     const incrementVotes = { inc_votes: 47 };
     return request(app)
       .patch("/api/articles/1")
@@ -255,6 +255,12 @@ describe("PATCH", () => {
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article.votes).toEqual(147);
+          });
       });
   });
 
@@ -276,6 +282,12 @@ describe("PATCH", () => {
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article.votes).toEqual(53);
+          });
       });
   });
 
