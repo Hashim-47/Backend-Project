@@ -416,10 +416,30 @@ describe("DELETE /api/comments/:comment_id", () => {
       .delete("/api/comments/1")
       .expect(204)
       .then(() => {
-        return db.query("SELECT * FROM comments WHERE comment_id = 1");
-      })
-      .then((res) => {
-        expect(res.rows[0]).toBe(undefined);
+        return request(app)
+          .delete("/api/comments/1")
+          .expect(404)
+          .then((result) => {
+            expect(result.body.msg).toBe("Not Found");
+          });
+      });
+  });
+
+  test("respond with code 404 comment id does not exist", () => {
+    return request(app)
+      .delete("/api/comments/999")
+      .expect(404)
+      .then((result) => {
+        expect(result.body.msg).toBe("Not Found");
+      });
+  });
+
+  test("respond with code 400 comment id is invalid", () => {
+    return request(app)
+      .delete("/api/comments/invalid")
+      .expect(400)
+      .then((result) => {
+        expect(result.body.msg).toBe("Bad Request");
       });
   });
 });

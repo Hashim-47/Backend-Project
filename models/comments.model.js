@@ -7,7 +7,6 @@ const deleteCommentById = (comment_id) => {
     ])
     .then((res) => {
       if (res.rows.length === 0) {
-        console.log(res.rows);
         return Promise.reject({ status: 404, msg: "Not Found" });
       }
     });
