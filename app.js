@@ -8,6 +8,7 @@ const {
   patchArticle,
 } = require("./controllers/articles.controller");
 const { getUsers } = require("./controllers/users.controller");
+const { deleteComment } = require("./controllers/comments.controller");
 const app = express();
 
 app.use(express.json());
@@ -19,6 +20,7 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchArticle);
 app.get("/api/users", getUsers);
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
@@ -41,6 +43,7 @@ app.use((err, req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+  console.log(err);
   res.status(500).send({ msg: "Internal server error" });
 });
 

@@ -409,3 +409,17 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("respond with code 204 and delete the given comment by comment_id", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {
+        return db.query("SELECT * FROM comments WHERE comment_id = 1");
+      })
+      .then((res) => {
+        expect(res.rows[0]).toBe(undefined);
+      });
+  });
+});
