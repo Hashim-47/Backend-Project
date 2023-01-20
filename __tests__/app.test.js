@@ -3,6 +3,7 @@ const app = require("../app");
 const request = require("supertest");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
+const { response } = require("express");
 require("jest-sorted");
 
 beforeEach(() => {
@@ -440,6 +441,18 @@ describe("DELETE /api/comments/:comment_id", () => {
       .expect(400)
       .then((result) => {
         expect(result.body.msg).toBe("Bad Request");
+      });
+  });
+});
+
+describe("GET /api", () => {
+  test("Respond with code 200 and all endpoints", () => {
+    const endpoints = require("../endpoints.json");
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then((res) => {
+        expect(res.body).toEqual(endpoints);
       });
   });
 });
