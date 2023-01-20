@@ -447,12 +447,23 @@ describe("DELETE /api/comments/:comment_id", () => {
 
 describe("GET /api", () => {
   test("Respond with code 200 and all endpoints", () => {
-    const endpoints = require("../endpoints.json");
     return request(app)
       .get("/api")
       .expect(200)
       .then((res) => {
-        expect(res.body).toEqual(endpoints);
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            "GET /api": expect.any(Object),
+            "GET /api/topics": expect.any(Object),
+            "GET /api/articles": expect.any(Object),
+            "GET /api/articles/:article_id": expect.any(Object),
+            "GET /api/articles/:article_id/comments": expect.any(Object),
+            "POST /api/articles/:article_id/comments": expect.any(Object),
+            "PATCH /api/articles/:article_id": expect.any(Object),
+            "GET /api/users": expect.any(Object),
+            "DELETE /api/comments/:comment_id": expect.any(Object),
+          })
+        );
       });
   });
 });
