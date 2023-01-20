@@ -144,6 +144,16 @@ describe("GET /api/articles", () => {
         });
     });
 
+    test("Respond with code 200 and an article object with comment count property", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then((res) => {
+          const article = res.body.article;
+          expect(article).toHaveProperty("comment_count");
+        });
+    });
+
     test("Respond with code 404 when article id does not exist", () => {
       return request(app)
         .get("/api/articles/4747")
