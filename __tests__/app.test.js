@@ -57,6 +57,35 @@ describe("GET /api/articles", () => {
       });
   });
 
+  test("Respond with code 200 and filtered articles by topic (mitch)", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        body.articles.forEach((article) => {
+          expect(article.topic).toEqual("mitch");
+        });
+      });
+  });
+
+  test("Respond with code 404 when querying for non-existent topic", () => {
+    return request(app)
+      .get("/api/articles?topic=nonexistent")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+
+  test("Respond with code 200 and filtered articles by sort by (title) - default descending", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy("title", { descending: true });
+      });
+  });
+
   test("Respond with code 200 and sort all articles by date in descending order", () => {
     return request(app)
       .get("/api/articles")
@@ -65,6 +94,35 @@ describe("GET /api/articles", () => {
         const articles = res.body.articles;
         expect(res.body.articles.length).toBeGreaterThan(1);
         expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+
+  test("Respond with code 400 and when given invalid sort by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=invalid")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
+      });
+  });
+
+  test("Respond with code 200 and sort all articles by date in ascending order (ASC)", () => {
+    return request(app)
+      .get("/api/articles?order=ASC")
+      .expect(200)
+      .then((res) => {
+        const articles = res.body.articles;
+        expect(res.body.articles.length).toBeGreaterThan(1);
+        expect(articles).toBeSortedBy("created_at", { ascending: true });
+      });
+  });
+
+  test("Respond with code 400 and when given invalid order", () => {
+    return request(app)
+      .get("/api/articles?order=invalid")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad Request");
       });
   });
 

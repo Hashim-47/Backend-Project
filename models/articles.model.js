@@ -1,17 +1,40 @@
 const db = require("../db/connection");
 
-const fetchArticles = () => {
-  return db
-    .query(
-      `SELECT articles.*, COUNT(comments.article_id) as comment_count 
-      FROM articles LEFT JOIN comments 
-      ON articles.article_id = comments.article_id 
-      GROUP BY articles.article_id 
-      ORDER BY articles.created_at DESC`
-    )
-    .then((result) => {
-      return result.rows;
-    });
+const fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
+  const validSortBy = ["title", "topic", "author", "body", "created_at"];
+  const validOrder = ["DESC", "ASC", "desc", "asc"];
+
+  if (!validSortBy.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  if (!validOrder.includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let queryString = `SELECT articles.*, COUNT(comments.article_id) as comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id`;
+
+  const queryParams = [];
+  let checkTopicExists = "";
+
+  if (topic) {
+    queryString += ` WHERE articles.topic = $1`;
+    queryParams.push(topic);
+    checkTopicExists += `SELECT * FROM topics WHERE topics.slug = $1`;
+  }
+
+  queryString += ` GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+
+  return Promise.all([
+    db.query(queryString, queryParams),
+    db.query(checkTopicExists, queryParams),
+  ]).then((result) => {
+    if (result[1].rows.length === 0 && topic !== undefined) {
+      return Promise.reject({ status: 404, msg: "Not Found" });
+    }
+
+    return result[0].rows;
+  });
 };
 
 const fetchArticle = (article_id) => {
