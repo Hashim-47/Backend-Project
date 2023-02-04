@@ -1,9 +1,18 @@
 const db = require("../db/connection");
 
-const fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
+const fetchArticles = (
+  topic,
+  sort_by = "created_at",
+  order = "desc",
+  p = 1,
+  limit = 10
+) => {
   const validSortBy = ["title", "topic", "author", "body", "created_at"];
   const validOrder = ["DESC", "ASC", "desc", "asc"];
-
+  if (isNaN(+p) || isNaN(+limit)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  const startPage = (p - 1) * limit;
   if (!validSortBy.includes(sort_by)) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
   }
@@ -23,7 +32,7 @@ const fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
     checkTopicExists += `SELECT * FROM topics WHERE topics.slug = $1`;
   }
 
-  queryString += ` GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order}`;
+  queryString += ` GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order} LIMIT ${limit} OFFSET ${startPage}`;
 
   return Promise.all([
     db.query(queryString, queryParams),
@@ -51,12 +60,16 @@ const fetchArticle = (article_id) => {
     });
 };
 
-const fetchArticleComments = (article_id) => {
+const fetchArticleComments = (article_id, p = 1, limit = 10) => {
+  if (isNaN(+p) || isNaN(+limit)) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+  const startPage = (p - 1) * 10;
   return fetchArticle(article_id).then((result) => {
     if (result) {
       return db
         .query(
-          `SELECT * FROM comments WHERE article_id = $1 ORDER BY comments.created_at DESC`,
+          `SELECT * FROM comments WHERE article_id = $1 ORDER BY comments.created_at DESC LIMIT ${limit} OFFSET ${startPage}`,
           [article_id]
         )
         .then((result) => {
@@ -108,6 +121,46 @@ const updateArticle = (articleId, articleBody) => {
     });
 };
 
+const insertArticle = (author, body, title, topic, article_img_url) => {
+  if (body === undefined || title === undefined || topic === undefined) {
+    return Promise.reject({ status: 400, msg: "Bad Request" });
+  }
+
+  let queryStringStart = `INSERT INTO articles (author, body, title, topic`;
+  let queryStringEnd = "";
+
+  const queryArr = [author, body, title, topic];
+
+  if (article_img_url !== undefined) {
+    queryStringStart += ", article_img_url";
+    queryStringEnd += ", $5";
+    queryArr.push(article_img_url);
+  }
+
+  queryStringStart +=
+    ") VALUES ($1, $2, $3, $4" + queryStringEnd + ") RETURNING *";
+
+  return db.query(queryStringStart, queryArr).then((result) => {
+    return result.rows[0].article_id;
+  });
+};
+
+const deleteArticleById = (article_id) => {
+  return db
+    .query("DELETE FROM comments WHERE article_id = $1", [article_id])
+    .then(() => {
+      return db.query(
+        "DELETE FROM articles WHERE article_id = $1 RETURNING * ",
+        [article_id]
+      );
+    })
+    .then((res) => {
+      if (res.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Not Found" });
+      }
+    });
+};
+
 module.exports = {
   fetchArticles,
   fetchArticle,
@@ -115,4 +168,6 @@ module.exports = {
   insertComment,
   fetchUserByUsername,
   updateArticle,
+  insertArticle,
+  deleteArticleById,
 };

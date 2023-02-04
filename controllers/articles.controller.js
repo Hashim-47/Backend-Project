@@ -5,14 +5,18 @@ const {
   insertComment,
   fetchUserByUsername,
   updateArticle,
+  insertArticle,
+  deleteArticleById,
 } = require("../models/articles.model");
 
 const getArticles = (req, res, next) => {
   const topic = req.query.topic;
   const sort_by = req.query.sort_by;
   const order = req.query.order;
+  const p = req.query.p;
+  const limit = req.query.limit;
 
-  fetchArticles(topic, sort_by, order)
+  fetchArticles(topic, sort_by, order, p, limit)
     .then((articles) => {
       res.status(200).send({ articles });
     })
@@ -34,7 +38,9 @@ const getArticle = (req, res, next) => {
 
 const getArticleComments = (req, res, next) => {
   const { article_id } = req.params;
-  fetchArticleComments(article_id)
+  const p = req.query.p;
+  const limit = req.query.limit;
+  fetchArticleComments(article_id, p, limit)
     .then((comments) => {
       res.status(200).send({ comments });
     })
@@ -76,10 +82,42 @@ const patchArticle = (req, res, next) => {
     });
 };
 
+const postArticle = (req, res, next) => {
+  const { author, body, title, topic, article_img_url } = req.body;
+
+  return fetchUserByUsername(author)
+    .then(() => {
+      return insertArticle(author, body, title, topic, article_img_url);
+    })
+    .then((article_id) => {
+      return fetchArticle(article_id);
+    })
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+const deleteArticle = (req, res, next) => {
+  const { article_id } = req.params;
+
+  deleteArticleById(article_id)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 module.exports = {
   getArticles,
   getArticle,
   getArticleComments,
   postComment,
   patchArticle,
+  postArticle,
+  deleteArticle,
 };
