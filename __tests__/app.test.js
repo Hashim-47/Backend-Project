@@ -748,7 +748,7 @@ describe("GET /api", () => {
   });
 });
 
-describe("DELETE /api/articles/:artocle_id", () => {
+describe("DELETE /api/articles/:article_id", () => {
   test("respond with code 204 and delete the given article by article_id", () => {
     return request(app)
       .delete("/api/articles/1")
