@@ -21,13 +21,13 @@ https://my-nc-news.onrender.com/api
 
 ### **Application dependencies:**
 
-<i>
+
 - npm 8.x
 - dotenv 16.x
 - express 4.x
 - pg 8.x
 - supertest 6.x
-  </i>
+  
 ### **Developer only dependencies:**
 <i>
 - pg-format 1.x
