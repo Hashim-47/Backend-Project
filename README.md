@@ -29,13 +29,13 @@ https://my-nc-news.onrender.com/api
 - supertest 6.x
   
 ### **Developer only dependencies:**
-<i>
+
 - pg-format 1.x
 - jest 27.x
 - jest-extended: 2.x
 - jest-sorted 1.x
 - husky 8.x
-  </i>
+  
 ### **Cloning the repositry:**
 - In your teminal:
 ```
