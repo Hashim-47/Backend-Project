@@ -7,7 +7,7 @@ const fetchArticles = (
   p = 1,
   limit = 10
 ) => {
-  const validSortBy = ["title", "topic", "author", "body", "created_at"];
+  const validSortBy = ["title", "topic", "author", "body", "created_at", "votes", "comment_count"];
   const validOrder = ["DESC", "ASC", "desc", "asc"];
   if (isNaN(+p) || isNaN(+limit)) {
     return Promise.reject({ status: 400, msg: "Bad Request" });
