@@ -31,8 +31,14 @@ const fetchArticles = (
     queryParams.push(topic);
     checkTopicExists += `SELECT * FROM topics WHERE topics.slug = $1`;
   }
-
-  queryString += ` GROUP BY articles.article_id ORDER BY articles.${sort_by} ${order} LIMIT ${limit} OFFSET ${startPage}`;
+  queryString += ` GROUP BY articles.article_id ORDER BY`
+  if(sort_by === "comment_count"){
+    queryString += ` ${sort_by}`
+  } else {
+    queryString += ` articles.${sort_by}`
+  }
+  
+  queryString += ` ${order} LIMIT ${limit} OFFSET ${startPage}`;
 
   return Promise.all([
     db.query(queryString, queryParams),
